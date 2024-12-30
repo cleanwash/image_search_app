@@ -1,7 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image_search_app/data/photo_api_repository.dart';
-import 'package:image_search_app/model/photo.dart';
-import 'package:image_search_app/ui/home_view_model.dart';
+import 'package:image_search_app/data/data_source/result.dart';
+import 'package:image_search_app/domain/repository/photo_api_repository.dart';
+import 'package:image_search_app/domain/model/photo.dart';
+import 'package:image_search_app/presentation/home/home_view_model.dart';
 
 void main() {
   test('Stream이 잘 동작해야 한다', () async {
@@ -13,7 +14,7 @@ void main() {
     final result = fakeJson.map((e) => Photo.fromJson(e)).toList();
 
     expect(
-      viewModel.photoStream,
+      viewModel.photos,
       emitsInOrder([
         equals([]),
         equals(result),
@@ -25,10 +26,10 @@ void main() {
 
 class FakePhotoApiRepository extends PhotoApiRepository {
   @override
-  Future<List<Photo>> fetch(String query) async {
+  Future<Result<List<Photo>>> fetch(String query) async {
     Future.delayed(Duration(microseconds: 500));
 
-    return fakeJson.map((e) => Photo.fromJson(e)).toList();
+    return Result.success(fakeJson.map((e) => Photo.fromJson(e)).toList());
   }
 }
 

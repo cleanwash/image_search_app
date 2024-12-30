@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image_search_app/data/pixabay_api.dart';
+import 'package:image_search_app/data/data_source/pixabay_api.dart';
+import 'package:image_search_app/data/data_source/result.dart';
+import 'package:image_search_app/data/repository/photo_api_repository_impl.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_search_app/domain/model/photo.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -9,17 +12,16 @@ import 'pixabay_api_test.mocks.dart';
 @GenerateMocks([http.Client])
 void main() {
   test('Pixabay 데이터를 잘 가져와야 한다', () async {
-    final api = PixabayApi();
-
     final client = MockClient();
+    final api = PhotoApiRepositoryImpl(PixabayApi(client));
 
     when(client.get(Uri.parse(
             '${PixabayApi.baseUrl}?key=${PixabayApi.key}&q=iphone&image_type=photo&pretty=true')))
         .thenAnswer((_) async => http.Response(fakeJsonBody, 200));
 
-    final result = await api.fetch('iphone', client: client);
+    final Result<List<Photo>> result = await api.fetch('iphone');
 
-    expect(result.first.id, 8175062);
+    expect((result as Success<List<Photo>>).data.first.id, 8175062);
     // expect(result.length, 20);
 
     verify(client.get(Uri.parse(
@@ -27,8 +29,7 @@ void main() {
   });
 }
 
-String fakeJsonBody = """
-{
+String fakeJsonBody = """ {
   "total": 9616,
   "totalHits": 500,
   "hits": [
@@ -513,5 +514,4 @@ String fakeJsonBody = """
       "userImageURL": "https://cdn.pixabay.com/user/2020/06/01/12-54-24-644_250x250.jpg"
     }
   ]
-}
-""";
+}""";
