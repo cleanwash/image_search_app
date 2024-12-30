@@ -1,7 +1,36 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class HomeScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:image_search_app/model/photo.dart';
+import 'package:image_search_app/ui/widget/photo_widget.dart';
+import 'package:http/http.dart' as http;
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _controller = TextEditingController();
+  List<Photo> _photos = [];
+
+  Future<List<Photo>> fetch(String query) async {
+    final response = await http.get(
+      Uri.parse(
+          'https://pixabay.com/api/?key=44774154-395511745d4c3f076effe3295&q=$query&image_type=photo&pretty=true'),
+    );
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+    Iterable hits = jsonResponse['hits'];
+    return hits.map((e) => Photo.fromJson(e)).toList();
+  }
+
+  @override
+  dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +46,7 @@ class HomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
+                controller: _controller,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(
@@ -24,7 +54,12 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   suffixIcon: IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final photos = await fetch(_controller.text);
+                      setState(() {
+                        _photos = photos;
+                      });
+                    },
                     icon: Icon(Icons.search),
                   ),
                 ),
@@ -33,24 +68,16 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: GridView.builder(
                 padding: EdgeInsets.all(16),
-                itemCount: 10,
+                itemCount: _photos.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
                 itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16),
-                      ),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            'https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcRbkmDwo_uYt2820wOf-6KA-SeadtkehqFwzG9Y-X6B1mAptapCNP2RAaXnJYUFIMdl5BrthAjfyb2V1KU'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                  final photo = _photos[index];
+                  return PhotoWidget(
+                    photo: photo,
                   );
                 },
               ),

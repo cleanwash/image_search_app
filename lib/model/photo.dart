@@ -1,30 +1,5 @@
 class Photo {
   Photo({
-    required this.total,
-    required this.totalHits,
-    required this.hits,
-  });
-  late final int total;
-  late final int totalHits;
-  late final List<Hits> hits;
-
-  Photo.fromJson(Map<String, dynamic> json) {
-    total = json['total'];
-    totalHits = json['totalHits'];
-    hits = List.from(json['hits']).map((e) => Hits.fromJson(e)).toList();
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['total'] = total;
-    data['totalHits'] = totalHits;
-    data['hits'] = hits.map((e) => e.toJson()).toList();
-    return data;
-  }
-}
-
-class Hits {
-  Hits({
     required this.id,
     required this.pageURL,
     required this.type,
@@ -71,7 +46,7 @@ class Hits {
   late final String user;
   late final String userImageURL;
 
-  Hits.fromJson(Map<String, dynamic> json) {
+  Photo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     pageURL = json['pageURL'];
     type = json['type'];
