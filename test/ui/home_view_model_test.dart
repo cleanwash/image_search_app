@@ -2,11 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_search_app/data/data_source/result.dart';
 import 'package:image_search_app/domain/repository/photo_api_repository.dart';
 import 'package:image_search_app/domain/model/photo.dart';
+import 'package:image_search_app/domain/use_case/get_photos_use_case.dart';
 import 'package:image_search_app/presentation/home/home_view_model.dart';
 
 void main() {
   test('Stream이 잘 동작해야 한다', () async {
-    final viewModel = HomeViewModel(FakePhotoApiRepository());
+    final viewModel = HomeViewModel(GetPhotosUseCase(FakePhotoApiRepository()));
 
     await viewModel.fetch('apple');
     await viewModel.fetch('iphone');
@@ -14,7 +15,7 @@ void main() {
     final result = fakeJson.map((e) => Photo.fromJson(e)).toList();
 
     expect(
-      viewModel.photos,
+      viewModel.state.photos,
       emitsInOrder([
         equals([]),
         equals(result),
