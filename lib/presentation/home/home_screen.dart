@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<HomeViewModel>();
+    final state = viewModel.state;
     return Scaffold(
         appBar: AppBar(
           elevation: 0.0,
@@ -71,23 +72,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.all(16),
-                itemCount: viewModel.photos.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemBuilder: (context, index) {
-                  final photo = viewModel.photos[index];
-                  return PhotoWidget(
-                    photo: photo,
-                  );
-                },
-              ),
-            )
+            state.isLoading
+                ? CircularProgressIndicator()
+                : Expanded(
+                    child: GridView.builder(
+                      padding: EdgeInsets.all(16),
+                      itemCount: state.photos.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemBuilder: (context, index) {
+                        final photo = state.photos[index];
+                        return PhotoWidget(
+                          photo: photo,
+                        );
+                      },
+                    ),
+                  )
           ],
         ));
   }
